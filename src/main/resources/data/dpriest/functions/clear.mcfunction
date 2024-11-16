@@ -1,0 +1,1 @@
+clear @p minecraft:written_book

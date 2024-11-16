@@ -1,0 +1,135 @@
+{
+	"type": "origins:multiple",
+	"terraresource": {
+		"type": "origins:resource",
+		"min": 0,
+		"max": 5,
+		"start_value": 5,
+		"hud_render": {
+			"should_render": false,
+			"bar_index": 2
+		}
+	},
+	"terradown": {
+		"type": "origins:action_over_time",
+		"interval": 30,
+		"entity_action": {
+			"type": "origins:and",
+			"actions": [
+			{
+				"type": "origins:gain_air",
+				"value": 10
+			},
+			{
+				"type": "origins:change_resource",
+				"resource": "diver:extrabreathterra_terraresource",
+				"change": -1
+			}
+			]
+		},
+		"condition": {
+			"type": "origins:and",
+			"conditions": [
+			{
+				"type": "origins:submerged_in",
+				"fluid": "minecraft:water"
+			},
+			{
+				"type": "origins:power",
+				"power": "origins:water_breathing",
+				"inverted": true
+			}
+			]
+		}
+	},
+	"terraup": {
+		"type": "origins:action_over_time",
+		"interval": 20,
+		"entity_action": {
+			"type": "origins:change_resource",
+			"resource": "diver:extrabreathterra_terraresource",
+			"change": 5
+		},
+		"condition": {
+			"type": "origins:and",
+			"conditions": [
+			{
+				"type": "origins:submerged_in",
+				"fluid": "minecraft:water",
+				"inverted": true
+			},
+			{
+				"type": "origins:power",
+				"power": "origins:water_breathing",
+				"inverted": true
+			},
+			{
+				"type": "origins:air",
+				"comparison": ">=",
+				"compare_to": 300
+			}
+			]
+		}
+	},
+	"aquadown": {
+		"type": "origins:action_over_time",
+		"interval": 30,
+		"entity_action": {
+			"type": "origins:and",
+			"actions": [
+			{
+				"type": "origins:gain_air",
+				"value": 10
+			},
+			{
+				"type": "origins:change_resource",
+				"resource": "diver:extrabreathterra_terraresource",
+				"change": -1
+			}
+			]
+		},
+		"condition": {
+			"type": "origins:and",
+			"conditions": [
+			{
+				"type": "origins:submerged_in",
+				"fluid": "minecraft:water",
+				"inverted": true
+			},
+			{
+				"type": "origins:power",
+				"power": "origins:water_breathing"
+			}
+			]
+		}
+	},
+	"aquaup": {
+		"type": "origins:action_over_time",
+		"interval": 20,
+		"entity_action": {
+			"type": "origins:change_resource",
+			"resource": "diver:extrabreathterra_terraresource",
+			"change": 5
+		},
+		"condition": {
+			"type": "origins:and",
+			"conditions": [
+			{
+				"type": "origins:submerged_in",
+				"fluid": "minecraft:water"
+			},
+			{
+				"type": "origins:power",
+				"power": "origins:water_breathing"
+			},
+			{
+				"type": "origins:air",
+				"comparison": ">=",
+				"compare_to": 300
+			}
+			]
+		}
+	},
+	"name": "Hold Your Breath",
+	"description": "Your air bubbles last a bit longer than most."
+}

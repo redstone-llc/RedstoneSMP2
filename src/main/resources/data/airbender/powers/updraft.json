@@ -1,0 +1,27 @@
+{
+	"type": "origins:active_self",
+	"entity_action": {
+		"type": "origins:and",
+		"actions": [
+		{
+			"type": "origins:add_velocity",
+        "y": 2,
+		"space": "local"
+		},
+		{
+		"type": "origins:execute_command",
+		"command": "/particle minecraft:cloud ~ ~1 ~ 0.6 0.6 0.6 0 10"
+		}	
+	]
+	},
+	"cooldown": 50,
+	"hud_render": {
+		"should_render": true,
+		"bar_index": 4
+	},
+	"key": {
+		"key": "key.origins.secondary_active"
+	},
+    "name":"Updraft",
+    "description":"You manipulate the air around you to launch yourself up high"
+}

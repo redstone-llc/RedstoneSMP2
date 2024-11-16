@@ -1,0 +1,8 @@
+{
+    "type": "origins:invulnerability",
+    "loading_priority": 1,
+    "damage_condition": {
+        "type": "origins:name",
+        "name": "sweetBerryBush"
+    }
+}

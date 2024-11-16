@@ -1,0 +1,10 @@
+{
+    "type": "origins:attribute",
+    "modifier": {
+        "id": "*:*","attribute": "minecraft:generic.max_health",
+        "operation": "addition",
+        "value": -5
+    },
+    "name": "Small Body",
+    "description": "Your smaller frame give you less health than a normal human has"
+}

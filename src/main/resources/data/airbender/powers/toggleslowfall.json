@@ -1,0 +1,10 @@
+{
+    "type": "origins:toggle",
+    "hidden": false,
+    "key": {
+        "key": "key.saveToolbarActivator"
+    },
+    "active_by_default": false,
+	"name": "Slowfall",
+	"description": "You can toggle slowfall on and off"
+}

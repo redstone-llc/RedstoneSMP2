@@ -1,0 +1,31 @@
+{
+	"type": "origins:multiple",
+	"mad": {
+		"type": "origins:action_over_time",
+		"entity_action": {
+			"type": "origins:execute_command",
+			"command": "execute as @p[tag=zombie] at @s run data modify entity @e[type=minecraft:wolf,limit=1,sort=random,distance=..64] AngryAt set from entity @s UUID"
+		},
+		"interval": 100
+	},
+	"tag": {
+		"type": "origins:action_on_callback",
+		"entity_action_chosen": {
+			"type": "origins:execute_command",
+			"command": "tag @s add zombie",
+			"permission_level": 4
+		},
+		"entity_action_removed": {
+			"type": "origins:execute_command",
+			"command": "tag @s remove zombie",
+			"permission_level": 4
+		},
+		"entity_action_respawned": {
+			"type": "origins:execute_command",
+			"command": "tag @s add zombie",
+			"permission_level": 4
+		}
+	},
+	"name": "Predator",
+	"description": "Dogs hate you!"
+}

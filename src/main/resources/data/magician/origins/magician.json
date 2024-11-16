@@ -1,0 +1,16 @@
+{
+  "powers": [
+    "magician:flee",
+    "magician:grapple",
+    "magician:smolman",
+    "magician:small",
+    "magician:faster_body"
+  ],
+  "icon": {
+    "id": "minecraft:lapis_lazuli"
+  },
+  "order": 3,
+  "impact": 1,
+  "name": "Magician",
+  "description": "A tricky boi :3"
+}

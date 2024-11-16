@@ -1,0 +1,14 @@
+{
+    "name": "Winged Sandals",
+    "description": "You are given a pair of sandals that have the power to do many great things",
+    "type": "origins:multiple",
+    "book": {
+        "type": "origins:starting_equipment",
+        "stack": {
+            "id": "leather_boots",
+            "tag": "{Unbreakable:1,AttributeModifiers:[{AttributeName:\"generic.movement_speed\",Amount:0.8,Slot:feet,Operation:1,Name:\"generic.movement_speed\",UUID:[I;-12305,24102,185252,-48204]}],display:{Name:'[{\"text\":\"Hermes Sandals\",\"italic\":false}]'},Enchantments:[{id:binding_curse,lvl:1},{id:vanishing_curse,lvl:1}],HideFlags:1}",
+            "slot": 36
+        },
+        "recurrent": true
+    }
+}

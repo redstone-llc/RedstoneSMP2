@@ -4,6 +4,7 @@
   "package": "llc.redstone.redstonesmp.mixin",
   "compatibilityLevel": "JAVA_21",
   "mixins": [
+    "ModPacketsC2SMixin"
   ],
   "injectors": {
     "defaultRequire": 1

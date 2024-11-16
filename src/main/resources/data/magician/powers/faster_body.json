@@ -1,0 +1,16 @@
+{
+    "type": "origins:stacking_status_effect",
+    "min_stacks": 1,
+    "max_stacks": 10,
+    "duration_per_stack": 20,
+    "effect": {
+        "effect": "minecraft:speed",
+        "duration": 20,
+        "amplifier": 1,
+        "is_ambient": true,
+        "show_particles": false,
+        "show_icon": false
+    },
+    "name": "Fast Footed",
+    "description": "Due To Your Shorter Legs And Low Exhaustion Your Movement Speed Is Increased And Your Size Is Decreased"
+}

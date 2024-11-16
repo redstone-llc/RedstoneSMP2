@@ -1,0 +1,3 @@
+team add dark_priest
+team join dark_priest @p
+give @p written_book{pages:['["",{"text":" \\u0020 F","obfuscated":true},{"text":"Heal Or Damage","color":"dark_red"},{"text":"F","color":"reset","obfuscated":true},{"text":"\\n\\n\\n \\u0020 \\u0020 \\u0020 \\u0020","color":"reset"},{"text":" HEAL","clickEvent":{"action":"run_command","value":"/function dpriest:heal"}},{"text":"\\n\\n\\n \\u0020 \\u0020 \\u0020 "},{"text":" DAMAGE","clickEvent":{"action":"run_command","value":"/function dpriest:damage"}}]'],title:"Demon's Handbook",author:""}

@@ -42,6 +42,9 @@ repositories {
     // See https://docs.gradle.org/current/userguide/declaring_repositories.html
     // for more information about repositories.
     mavenCentral()
+    maven("https://maven.nucleoid.xyz/") { name = "Nucleoid" }
+    maven("https://jitpack.io")
+    maven("https://cursemaven.com")
 }
 
 dependencies {
@@ -53,6 +56,11 @@ dependencies {
 
     // Fabric API. This is technically optional, but you probably want it anyway.
     modImplementation("net.fabricmc.fabric-api:fabric-api:${project.property("fabric_version")}")
+    modImplementation("eu.pb4:placeholder-api:2.4.1+1.21")
+    modImplementation("curse.maven:open-parties-and-claims-636608:5604120")
+    modImplementation("curse.maven:origins-391943:5777233")
+    modApi(files("libs/calio-1.14.0-alpha.7+mc.1.21.x.jar"))
+
     compileOnly("net.luckperms:api:${project.property("luckperms_version")}")
 }
 
@@ -91,20 +99,8 @@ tasks.jar {
     }
 }
 
-// configure the maven publication
-publishing {
-    publications {
-        create<MavenPublication>("mavenJava") {
-            artifactId = project.property("archives_base_name") as String
-            from(components["java"])
-        }
-    }
-
-    // See https://docs.gradle.org/current/userguide/publishing_maven.html for information on how to set up publishing.
-    repositories {
-        // Add repositories to publish to here.
-        // Notice: This block does NOT have the same function as the block in the top level.
-        // The repositories here will be used for publishing your artifact, not for
-        // retrieving dependencies.
-    }
+tasks.register("copyJarToFiles", Copy::class) {
+    //remapJar
+    from (tasks.named("remapJar"))
+    into("C:/Users/griff/Desktop/smp/mods")
 }

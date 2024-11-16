@@ -1,0 +1,35 @@
+{
+  "powers": [
+    "fox:stealth_timer",
+    "fox:stealth_countdown",
+    "fox:stealth_translucent",
+    "fox:stealth_w",
+    "fox:stealth_a",
+    "fox:stealth_s",
+    "fox:stealth_d",
+    "fox:stealth_jump",
+    "fox:stealth_primary",
+    "fox:pounce",
+    "fox:pounce_aerialdamage",
+    "fox:smolman",
+    "fox:speed",
+    "fox:jump",
+    "fox:fox_eyes",
+    "fox:fragilefox",
+    "fox:hungy",
+    "fox:stealth",
+    "fox:monch",
+    "fox:yummy_berries",
+    "fox:run",
+    "fox:careful_gatherer",
+    "origins:fall_immunity",
+    "origins:no_shield"
+  ],
+  "icon": {
+    "id": "minecraft:sweet_berries"
+  },
+  "order": 2,
+  "impact": 2,
+  "name": "Stealthy Fox",
+  "description": "A fox that specializes in stealth"
+}

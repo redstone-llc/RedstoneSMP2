@@ -1,0 +1,7 @@
+{
+	"name": "Hungry",
+	"description":"You expend a lot of energy, so you need more food",
+	"type": "origins:exhaust",
+	"interval": 20,
+	"exhaustion": 0.15
+}

@@ -1,0 +1,35 @@
+{
+	"type": "origins:active_self",
+	"name": "Hibernate",
+	"description": "You hibernate for 10 seconds, regaining all your health",
+	"entity_action": {
+		"type": "origins:and",
+		"actions": [
+			{
+				"type": "origins:execute_command",
+				"command": "/playsound minecraft:entity.frog.long_jump ambient @p ~ ~ ~ 100"
+			},
+			{
+				"type": "origins:execute_command",
+				"command": "/effect give @p minecraft:slowness 5 255"
+			},
+			{
+				"type": "origins:execute_command",
+				"command": "/effect give @p minecraft:regeneration 2 255"
+			},
+			{
+				"type": "origins:execute_command",
+				"command": "/effect give @p minecraft:blindness 5 255"
+			}
+		]
+	},
+	"cooldown": 1000,
+	"hud_render": {
+		"should_render": true,
+		"sprite_location": "origins:textures/gui/community/spiderkolo/resource_bar_02.png",
+		"bar_index": 9
+	},
+	"key": {
+		"key": "key.origins.primary_active"
+	}
+}
