@@ -55,6 +55,7 @@ public class RegionSelectCommand {
                                             }
 
                                             frozenPlayers.remove(player.getUuid());
+                                            player.setInvulnerable(false);
 
                                             originRegion.teleportPlayer(player);
 

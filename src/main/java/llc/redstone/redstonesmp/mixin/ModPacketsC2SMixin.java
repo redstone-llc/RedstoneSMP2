@@ -39,6 +39,7 @@ public class ModPacketsC2SMixin {
         } catch (NoSuchFieldException | IllegalAccessException ignored) {} //nah
 
         frozenPlayers.put(player.getUuid(), true);
+        player.setInvulnerable(true);
         PlayerData playerData = playerDataCollection.getPlayerData(player.getUuid());
         playerData.setOriginId(origin.getId().toString());
         playerData.setLayerId(layer.getId().toString());

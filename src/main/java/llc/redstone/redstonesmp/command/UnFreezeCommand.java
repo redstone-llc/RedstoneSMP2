@@ -26,6 +26,7 @@ public class UnFreezeCommand {
                                             return Command.SINGLE_SUCCESS;
                                         }
                                         RedstoneSMP.frozenPlayers.remove(target.getUuid());
+                                        target.setInvulnerable(false);
                                     }
                                     return Command.SINGLE_SUCCESS;
                                 })

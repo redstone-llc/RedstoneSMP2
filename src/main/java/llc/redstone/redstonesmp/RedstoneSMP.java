@@ -30,8 +30,10 @@ import llc.redstone.redstonesmp.utils.ContinentMessageUtils;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
+import net.fabricmc.fabric.api.entity.event.v1.ServerLivingEntityEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
+import net.fabricmc.fabric.api.event.player.AttackEntityCallback;
 import net.fabricmc.fabric.api.networking.v1.PacketSender;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents;
 import net.fabricmc.loader.api.FabricLoader;
@@ -41,10 +43,12 @@ import net.minecraft.block.Blocks;
 import net.minecraft.item.Items;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.StringNbtReader;
+import net.minecraft.network.packet.s2c.play.EntityDamageS2CPacket;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.network.ServerPlayNetworkHandler;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.text.Text;
+import net.minecraft.util.ActionResult;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
@@ -247,6 +251,17 @@ public class RedstoneSMP implements ModInitializer {
                             )
                     );
                 }
+            });
+
+            AttackEntityCallback.EVENT.register((player, world, hand, entity, entityHitResult) -> {
+                if (frozenPlayers.containsKey(player.getUuid())) {
+                    return ActionResult.FAIL;
+                }
+                return ActionResult.PASS;
+            });
+
+            ServerLivingEntityEvents.ALLOW_DAMAGE.register((entity, source, amount) -> {
+                return !(entity instanceof ServerPlayerEntity player) || !frozenPlayers.containsKey(player.getUuid());
             });
 
             ServerPlayConnectionEvents.DISCONNECT.register((handler, server) -> {
