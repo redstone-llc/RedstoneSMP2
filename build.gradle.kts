@@ -59,7 +59,6 @@ dependencies {
     // Fabric API. This is technically optional, but you probably want it anyway.
     modImplementation("net.fabricmc.fabric-api:fabric-api:${project.property("fabric_version")}")
     modImplementation("eu.pb4:placeholder-api:2.4.1+1.21")
-    modImplementation("curse.maven:open-parties-and-claims-636608:5604120")
     modImplementation("curse.maven:origins-391943:5777233")
 
     val ccaVersion = property("cca_version") as String
