@@ -1,9 +1,0 @@
-{
-    "type": "origins:invulnerability",
-    "damage_condition": {
-        "type": "origins:name",
-        "name": "fall"
-    },
-    "name": "Light Weight",
-    "description": "You don't take fall damage."
-}

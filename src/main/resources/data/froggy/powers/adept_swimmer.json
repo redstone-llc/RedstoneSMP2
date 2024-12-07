@@ -1,9 +1,0 @@
-{
-    "type": "origins:modify_swim_speed",
-    "modifier": {
-        "id": "addition",
-        "amount": 0.025
-    },
-	"name": "Great Swimmmer",
-	"description": "You swim much faster."
-}

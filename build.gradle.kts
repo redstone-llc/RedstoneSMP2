@@ -1,9 +1,9 @@
-import org.jetbrains.kotlin.gradle.dsl.JvmTarget
-import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+import net.fabricmc.loom.configuration.providers.minecraft.mapped.AbstractMappedMinecraftProvider.RemappedJars
+import net.fabricmc.loom.task.RemapJarTask
+import net.fabricmc.loom.task.RemapTaskConfiguration
 
 plugins {
-    kotlin("jvm") version "2.0.20"
-    id("fabric-loom") version "1.7.1"
+    id("fabric-loom") version "1.8.10"
     id("maven-publish")
     java
 }
@@ -25,12 +25,9 @@ java {
 }
 
 loom {
-    splitEnvironmentSourceSets()
-
     mods {
         register("redstonesmp") {
             sourceSet("main")
-            sourceSet("client")
         }
     }
 }
@@ -45,21 +42,40 @@ repositories {
     maven("https://maven.nucleoid.xyz/") { name = "Nucleoid" }
     maven("https://jitpack.io")
     maven("https://cursemaven.com")
-}
+    maven("https://maven.kyrptonaught.dev")
+
+    maven {
+        name = "Ladysnake Mods"
+        url = uri("https://maven.ladysnake.org/releases")
+    }
+    }
 
 dependencies {
     // To change the versions see the gradle.properties file
     minecraft("com.mojang:minecraft:${project.property("minecraft_version")}")
     mappings("net.fabricmc:yarn:${project.property("yarn_mappings")}:v2")
     modImplementation("net.fabricmc:fabric-loader:${project.property("loader_version")}")
-    modImplementation("net.fabricmc:fabric-language-kotlin:${project.property("kotlin_loader_version")}")
 
     // Fabric API. This is technically optional, but you probably want it anyway.
     modImplementation("net.fabricmc.fabric-api:fabric-api:${project.property("fabric_version")}")
     modImplementation("eu.pb4:placeholder-api:2.4.1+1.21")
     modImplementation("curse.maven:open-parties-and-claims-636608:5604120")
     modImplementation("curse.maven:origins-391943:5777233")
-    modApi(files("libs/calio-1.14.0-alpha.7+mc.1.21.x.jar"))
+
+    val ccaVersion = property("cca_version") as String
+    modImplementation("org.ladysnake.cardinal-components-api:cardinal-components-base:$ccaVersion")
+//    include("org.ladysnake.cardinal-components-api:cardinal-components-base:$ccaVersion")
+
+    modImplementation(files("libs/apoli-2.12.0-alpha.12+mc.1.21.x.jar"))
+    modImplementation(files("libs/calio-1.14.0-alpha.7+mc.1.21.x.jar"))
+    modImplementation(files("libs/styled-chat-2.6.0+1.21.jar"))
+
+
+    modImplementation("net.kyrptonaught:customportalapi:0.0.1-beta67-1.21")
+    include("net.kyrptonaught:customportalapi:0.0.1-beta67-1.21")
+
+    implementation("org.mongodb:mongo-java-driver:${project.property("mongo")}")
+    include("org.mongodb:mongo-java-driver:${project.property("mongo")}")
 
     compileOnly("net.luckperms:api:${project.property("luckperms_version")}")
 }
@@ -74,8 +90,7 @@ tasks.processResources {
         expand(
             "version" to project.version,
             "minecraft_version" to project.property("minecraft_version"),
-            "loader_version" to project.property("loader_version"),
-            "kotlin_loader_version" to project.property("kotlin_loader_version")
+            "loader_version" to project.property("loader_version")
         )
     }
 }
@@ -87,10 +102,6 @@ tasks.withType<JavaCompile>().configureEach {
     // If Javadoc is generated, this must be specified in that task too.
     options.encoding = "UTF-8"
     options.release.set(targetJavaVersion)
-}
-
-tasks.withType<KotlinCompile>().configureEach {
-    compilerOptions.jvmTarget.set(JvmTarget.fromTarget(targetJavaVersion.toString()))
 }
 
 tasks.jar {

@@ -4,9 +4,14 @@
   "package": "llc.redstone.redstonesmp.mixin",
   "compatibilityLevel": "JAVA_21",
   "mixins": [
-    "ModPacketsC2SMixin"
+    "ModPacketsC2SMixin",
+    "PacketCodecDispatcherMixin",
+    "ServerStatHandlerMixin"
   ],
   "injectors": {
     "defaultRequire": 1
-  }
+  },
+  "client": [
+    "DCCHMixin"
+  ]
 }
