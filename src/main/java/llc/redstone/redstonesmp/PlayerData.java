@@ -9,6 +9,7 @@ public class PlayerData {
 
     private String tpCoords;
     private boolean inAdventureServer;
+    public String regionName;
     public boolean selectedContinent;
 
     public PlayerData() {

@@ -67,6 +67,7 @@ public class RegionSelectCommand {
                                             } catch (NoSuchFieldException | IllegalAccessException ignored) {} //nah
 
                                             data.selectedContinent = true;
+                                            data.regionName = region;
                                             playerDataCollection.updatePlayerData(data);
                                             return Command.SINGLE_SUCCESS;
                                         })

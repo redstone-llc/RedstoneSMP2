@@ -34,6 +34,5 @@ public class OriginRegion {
         int y = player.getServerWorld().getTopY(Heightmap.Type.WORLD_SURFACE, x, z);
         if (!player.getServer().getOverworld().equals(player.getServerWorld())) return;
         player.teleport(player.getServerWorld(), x, y, z, player.getYaw(), player.getPitch());
-        player.setSpawnPoint(player.getServerWorld().getRegistryKey(), player.getBlockPos().add(0, 1, 0), 0.0F, true, false);
     }
 }

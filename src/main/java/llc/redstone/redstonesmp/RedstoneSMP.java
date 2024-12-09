@@ -12,6 +12,7 @@ import eu.pb4.placeholders.api.parsers.TagParser;
 import eu.pb4.placeholders.api.parsers.TextParserV1;
 import eu.pb4.styledchat.StyledChatEvents;
 import eu.pb4.styledchat.StyledChatStyles;
+import eu.pb4.styledchat.other.StyledChatSentMessage;
 import io.github.apace100.origins.component.OriginComponent;
 import io.github.apace100.origins.origin.Origin;
 import io.github.apace100.origins.origin.OriginLayer;
@@ -23,26 +24,35 @@ import llc.redstone.redstonesmp.database.MessageQueueCollection;
 import llc.redstone.redstonesmp.database.OriginContinentCollection;
 import llc.redstone.redstonesmp.database.PlayerDataCollection;
 import llc.redstone.redstonesmp.database.PortalLocationCollection;
+import llc.redstone.redstonesmp.database.schema.OriginContinents;
+import llc.redstone.redstonesmp.database.schema.OriginRegion;
 import llc.redstone.redstonesmp.database.schema.PortalLocation;
 import llc.redstone.redstonesmp.database.schema.ServerMessage;
+import llc.redstone.redstonesmp.factions.FactionManager;
 import llc.redstone.redstonesmp.interfaces.IServerStatHandler;
 import llc.redstone.redstonesmp.utils.ContinentMessageUtils;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
 import net.fabricmc.fabric.api.entity.event.v1.ServerLivingEntityEvents;
+import net.fabricmc.fabric.api.entity.event.v1.ServerPlayerEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 import net.fabricmc.fabric.api.event.player.AttackEntityCallback;
+import net.fabricmc.fabric.api.message.v1.ServerMessageEvents;
 import net.fabricmc.fabric.api.networking.v1.PacketSender;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents;
 import net.fabricmc.loader.api.FabricLoader;
 import net.kyrptonaught.customportalapi.api.CustomPortalBuilder;
 import net.kyrptonaught.customportalapi.util.SHOULDTP;
+import net.minecraft.block.BedBlock;
+import net.minecraft.block.Block;
+import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
 import net.minecraft.item.Items;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.StringNbtReader;
+import net.minecraft.network.message.SignedMessage;
 import net.minecraft.network.packet.s2c.play.EntityDamageS2CPacket;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.network.ServerPlayNetworkHandler;
@@ -56,6 +66,7 @@ import net.minecraft.util.math.Vec3d;
 import java.io.File;
 import java.nio.file.Files;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -103,6 +114,8 @@ public class RedstoneSMP implements ModInitializer {
             messageQueueCollection = new MessageQueueCollection();
             originContinentCollection = new OriginContinentCollection();
 
+            FactionManager.register();
+
             // load originlocations.json
             File originsLocationsFile = new File("config/originlocations.json");
             if (originsLocationsFile.exists()) {
@@ -120,26 +133,22 @@ public class RedstoneSMP implements ModInitializer {
                 }
             }
 
-            AtomicReference<TextNode> lastMessage = new AtomicReference<>(null);
-            StyledChatEvents.MESSAGE_CONTENT.register((message, context) -> {
+            AtomicReference<SignedMessage> lastMessage = new AtomicReference<>(null);
+            ServerMessageEvents.CHAT_MESSAGE.register((message, sender, params) -> {
                 if (lastMessage.get() != null && lastMessage.get().equals(message)) {
-                    return message;
-                }
-                if (!context.hasPlayer()) {
-                    return message;
+                    return;
                 }
 
                 lastMessage.set(message);
 
-                Text txt = StyledChatStyles.getChat(context.player(), message.toText());
+                Text txt = StyledChatStyles.getChat(sender, message.getContent());
 
                 messageQueueCollection.insertMessage(
                         new ServerMessage(
                                 txt.getString(),
-                                (context.server().getOverworld().getSeed() == 27594263L) ? "smp" : "adventure"
+                                (sender.getServer().getOverworld().getSeed() == 27594263L) ? "smp" : "adventure"
                         )
                 );
-                return message;
             });
 
             ServerTickEvents.START_SERVER_TICK.register((server) -> {
@@ -194,12 +203,10 @@ public class RedstoneSMP implements ModInitializer {
                     OriginComponent component = ModComponents.ORIGIN.get(handler.getPlayer());
                     component.getOrigins().values().stream().findFirst().ifPresent(origin -> {
                         if (origin.getId() != null && playerDataE.getOriginId() != null && playerDataE.getLayerId() != null) {
-                            if (!origin.getId().toString().equalsIgnoreCase(playerDataE.getOriginId())) {
-                                OriginLayer layer = OriginLayerManager.get(Identifier.of(playerDataE.getLayerId()));
-                                Origin newOrigin = OriginManager.get(Identifier.of(playerDataE.getOriginId()));
-                                if (layer != null && newOrigin != null) {
-                                    component.setOrigin(layer, newOrigin);
-                                }
+                            OriginLayer layer = OriginLayerManager.get(Identifier.of(playerDataE.getLayerId()));
+                            Origin newOrigin = OriginManager.get(Identifier.of(playerDataE.getOriginId()));
+                            if (layer != null && newOrigin != null) {
+                                component.setOrigin(layer, newOrigin);
                             }
                         }
                     });
@@ -208,6 +215,16 @@ public class RedstoneSMP implements ModInitializer {
                         component.getOrigins().keySet().stream().skip(1).forEach(layer -> {
                             component.getOrigins().remove(layer);
                         });
+                    }
+
+                    if (playerDataE.regionName == null && playerDataE.selectedContinent) {
+                        OriginContinents r = originContinentCollection.getOriginLocation(playerDataE.getOriginId());
+                        if (r == null) return;
+                        List<OriginRegion> regions = r.regions;
+                        //random region
+                        OriginRegion region = regions.get((int) (Math.random() * regions.size()));
+                        playerDataE.regionName = region.name;
+                        playerDataCollection.updatePlayerData(playerDataE);
                     }
 
                     //Player Inv, Stats, and TP
@@ -253,6 +270,29 @@ public class RedstoneSMP implements ModInitializer {
                 }
             });
 
+            ServerPlayerEvents.AFTER_RESPAWN.register((oldPlayer, newPlayer, alive) -> {
+                if (!playerDataCollection.hasPlayerData(newPlayer.getUuid())) return;
+                PlayerData playerDataE = playerDataCollection.getPlayerData(newPlayer.getUuid());
+                if (!playerDataE.isInAdventureServer()) {
+                    BlockPos pos = newPlayer.getSpawnPointPosition();
+                    if (pos != null) {
+                        BlockState blockState = newPlayer.getServerWorld().getBlockState(pos);
+                        Block block = blockState.getBlock();
+                        if (block instanceof BedBlock) {
+                            System.out.println("Bed");
+                            return;
+                        }
+                    }
+                    if (playerDataE.selectedContinent && playerDataE.regionName != null) {
+                        OriginRegion region = originContinentCollection.getOriginLocation(playerDataE.getOriginId()).getRegion(playerDataE.regionName);
+                        region.teleportPlayer(newPlayer);
+                    } else {
+                        ContinentMessageUtils.sendContinentMessage(newPlayer, playerDataE.getOriginId());
+                        frozenPlayers.put(newPlayer.getUuid(), true);
+                    }
+                }
+            });
+
             AttackEntityCallback.EVENT.register((player, world, hand, entity, entityHitResult) -> {
                 if (frozenPlayers.containsKey(player.getUuid())) {
                     return ActionResult.FAIL;
@@ -263,6 +303,7 @@ public class RedstoneSMP implements ModInitializer {
             ServerLivingEntityEvents.ALLOW_DAMAGE.register((entity, source, amount) -> {
                 return !(entity instanceof ServerPlayerEntity player) || !frozenPlayers.containsKey(player.getUuid());
             });
+
 
             ServerPlayConnectionEvents.DISCONNECT.register((handler, server) -> {
                 if (serverSwitch.get()) { //We need this to make sure it doesnt update the player data when the player is switching servers
@@ -279,6 +320,8 @@ public class RedstoneSMP implements ModInitializer {
                 UnFreezeCommand.register(dispatcher);
             });
             new LocalChat();
+            new FactionChat();
+            new ChatCommand();
         }
 
         new ServerRedirect().onInitialize();

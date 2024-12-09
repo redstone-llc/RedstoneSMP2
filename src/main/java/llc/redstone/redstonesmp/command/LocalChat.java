@@ -34,28 +34,11 @@ import static net.minecraft.server.command.CommandManager.literal;
 
 
 public class LocalChat {
-    HashMap<UUID, Boolean> localChat = new HashMap<>();
+    public static HashMap<UUID, Boolean> localChat = new HashMap<>();
     public LocalChat() {
         CommandRegistrationCallback.EVENT.register((dispatcher, dedicated, env) -> {
             LiteralCommandNode<ServerCommandSource> lc = dispatcher.register(
                     literal("localchat")
-                            .executes(ctx -> {
-                                if (!ctx.getSource().isExecutedByPlayer()) {
-                                    return Command.SINGLE_SUCCESS;
-                                }
-                                ServerPlayerEntity player = ctx.getSource().getPlayer();
-                                if (localChat.containsKey(player.getUuid())) {
-                                    localChat.put(player.getUuid(), !localChat.get(player.getUuid()));
-                                } else {
-                                    localChat.put(player.getUuid(), true);
-                                }
-                                if (localChat.get(player.getUuid())) {
-                                    player.sendMessage(Text.of("§aYou are now talking in Local Chat (Radius: 25)"), false);
-                                } else {
-                                    player.sendMessage(Text.of("§aYou are now talking in Global Chat"), false);
-                                }
-                                return Command.SINGLE_SUCCESS;
-                            })
                             .then(argument("message", StringArgumentType.greedyString())
                                     .executes(ctx -> {
                                         if (!ctx.getSource().isExecutedByPlayer()) {
@@ -65,7 +48,6 @@ public class LocalChat {
                                         return Command.SINGLE_SUCCESS;
                                     })
                             )
-
             );
             dispatcher.register(literal("lc").redirect(lc));
         });

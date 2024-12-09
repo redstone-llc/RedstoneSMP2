@@ -68,6 +68,7 @@ dependencies {
     modImplementation(files("libs/apoli-2.12.0-alpha.12+mc.1.21.x.jar"))
     modImplementation(files("libs/calio-1.14.0-alpha.7+mc.1.21.x.jar"))
     modImplementation(files("libs/styled-chat-2.6.0+1.21.jar"))
+    modImplementation(files("libs/factions-mc1.21-2.6.3.jar"))
 
 
     modImplementation("net.kyrptonaught:customportalapi:0.0.1-beta67-1.21")

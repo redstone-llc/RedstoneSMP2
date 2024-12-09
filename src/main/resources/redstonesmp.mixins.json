@@ -4,6 +4,7 @@
   "package": "llc.redstone.redstonesmp.mixin",
   "compatibilityLevel": "JAVA_21",
   "mixins": [
+    "InteractionManagerMixin",
     "ModPacketsC2SMixin",
     "PacketCodecDispatcherMixin",
     "ServerStatHandlerMixin"
