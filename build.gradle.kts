@@ -48,7 +48,7 @@ repositories {
         name = "Ladysnake Mods"
         url = uri("https://maven.ladysnake.org/releases")
     }
-    }
+}
 
 dependencies {
     // To change the versions see the gradle.properties file
@@ -73,6 +73,9 @@ dependencies {
 
     modImplementation("net.kyrptonaught:customportalapi:0.0.1-beta67-1.21")
     include("net.kyrptonaught:customportalapi:0.0.1-beta67-1.21")
+
+    modImplementation ("eu.pb4:polymer-core:${project.property("polymer")}")
+    include("eu.pb4:polymer-core:${project.property("polymer")}")
 
     implementation("org.mongodb:mongo-java-driver:${project.property("mongo")}")
     include("org.mongodb:mongo-java-driver:${project.property("mongo")}")
@@ -112,6 +115,6 @@ tasks.jar {
 
 tasks.register("copyJarToFiles", Copy::class) {
     //remapJar
-    from (tasks.named("remapJar"))
+    from(tasks.named("remapJar"))
     into("C:/Users/griff/Desktop/smp/mods")
 }

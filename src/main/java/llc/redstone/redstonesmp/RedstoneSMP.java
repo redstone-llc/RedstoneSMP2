@@ -13,12 +13,15 @@ import eu.pb4.placeholders.api.parsers.TextParserV1;
 import eu.pb4.styledchat.StyledChatEvents;
 import eu.pb4.styledchat.StyledChatStyles;
 import eu.pb4.styledchat.other.StyledChatSentMessage;
+import io.github.apace100.origins.Origins;
 import io.github.apace100.origins.component.OriginComponent;
 import io.github.apace100.origins.origin.Origin;
 import io.github.apace100.origins.origin.OriginLayer;
 import io.github.apace100.origins.origin.OriginLayerManager;
 import io.github.apace100.origins.origin.OriginManager;
 import io.github.apace100.origins.registry.ModComponents;
+import io.icker.factions.api.persistents.User;
+import io.icker.factions.mixin.DamageTrackerAccessor;
 import llc.redstone.redstonesmp.command.*;
 import llc.redstone.redstonesmp.database.MessageQueueCollection;
 import llc.redstone.redstonesmp.database.OriginContinentCollection;
@@ -30,6 +33,7 @@ import llc.redstone.redstonesmp.database.schema.PortalLocation;
 import llc.redstone.redstonesmp.database.schema.ServerMessage;
 import llc.redstone.redstonesmp.factions.FactionManager;
 import llc.redstone.redstonesmp.interfaces.IServerStatHandler;
+import llc.redstone.redstonesmp.item.DeadSimpleBagsItems;
 import llc.redstone.redstonesmp.utils.ContinentMessageUtils;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.ModInitializer;
@@ -53,8 +57,8 @@ import net.minecraft.item.Items;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.StringNbtReader;
 import net.minecraft.network.message.SignedMessage;
-import net.minecraft.network.packet.s2c.play.EntityDamageS2CPacket;
 import net.minecraft.server.MinecraftServer;
+import net.minecraft.server.PlayerManager;
 import net.minecraft.server.network.ServerPlayNetworkHandler;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.text.Text;
@@ -89,6 +93,8 @@ public class RedstoneSMP implements ModInitializer {
 
     public static HashMap<UUID, Boolean> frozenPlayers = new HashMap<>();
 
+    private static PlayerManager playerManager;
+
     @Override
     public void onInitialize() {
         if (FabricLoader.getInstance().getEnvironmentType() == EnvType.SERVER) {
@@ -114,7 +120,9 @@ public class RedstoneSMP implements ModInitializer {
             messageQueueCollection = new MessageQueueCollection();
             originContinentCollection = new OriginContinentCollection();
 
-            FactionManager.register();
+            if (FabricLoader.getInstance().isModLoaded("factions")) {
+                FactionManager.register();
+            }
 
             // load originlocations.json
             File originsLocationsFile = new File("config/originlocations.json");
@@ -168,15 +176,40 @@ public class RedstoneSMP implements ModInitializer {
                 }
             });
 
+            Thread updatePlayerData = new Thread(() -> {
+                while (!Thread.interrupted()) {
+                    try {
+                        Thread.sleep(1000 * 60); //60 seconds
+                        for (ServerPlayerEntity player : playerManager.getPlayerList()) {
+                            updatePlayerData(player, null);
+                        }
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                }
+            });
+
             //events
 
+            ServerLifecycleEvents.SERVER_STARTED.register((server) -> {
+                playerManager = server.getPlayerManager();
+                updatePlayerData.start();
+            });
+
             ServerLifecycleEvents.SERVER_STOPPING.register((server) -> {
-                for (ServerPlayerEntity player : server.getPlayerManager().getPlayerList()) {
+                for (ServerPlayerEntity player : playerManager.getPlayerList()) {
                     updatePlayerData(player, null);
                 }
+            });
+
+            ServerLifecycleEvents.SERVER_STOPPED.register((server) -> {
 
                 playerDataCollection.close();
                 portalLocationCollection.close();
+                messageQueueCollection.close();
+                originContinentCollection.close();
+
+                updatePlayerData.interrupt();
             });
 
             ServerPlayConnectionEvents.JOIN.register((ServerPlayNetworkHandler handler, PacketSender sender, MinecraftServer server) -> {
@@ -197,24 +230,6 @@ public class RedstoneSMP implements ModInitializer {
                     if (!playerDataE.selectedContinent && playerDataE.getOriginId() != null) {
                         ContinentMessageUtils.sendContinentMessage(handler.getPlayer(), playerDataE.getOriginId());
                         frozenPlayers.put(handler.getPlayer().getUuid(), true);
-                    }
-
-                    //Origin Sync
-                    OriginComponent component = ModComponents.ORIGIN.get(handler.getPlayer());
-                    component.getOrigins().values().stream().findFirst().ifPresent(origin -> {
-                        if (origin.getId() != null && playerDataE.getOriginId() != null && playerDataE.getLayerId() != null) {
-                            OriginLayer layer = OriginLayerManager.get(Identifier.of(playerDataE.getLayerId()));
-                            Origin newOrigin = OriginManager.get(Identifier.of(playerDataE.getOriginId()));
-                            if (layer != null && newOrigin != null) {
-                                component.setOrigin(layer, newOrigin);
-                            }
-                        }
-                    });
-
-                    if (component.getOrigins().size() > 1) {
-                        component.getOrigins().keySet().stream().skip(1).forEach(layer -> {
-                            component.getOrigins().remove(layer);
-                        });
                     }
 
                     if (playerDataE.regionName == null && playerDataE.selectedContinent) {
@@ -239,6 +254,29 @@ public class RedstoneSMP implements ModInitializer {
                         }
 
                         handler.getPlayer().readNbt(newNbt);
+                    }
+
+                    //Origin Sync
+                    OriginComponent component = ModComponents.ORIGIN.get(handler.getPlayer());
+                    OriginLayer defaultLayer = OriginLayerManager.get(Origins.identifier("origin"));
+                    Origin defaultOrigin = OriginManager.get(Origins.identifier("empty"));
+
+                    component.getOrigins().values().stream().findFirst().ifPresent(origin -> {
+                        if (origin.getId() != null && playerDataE.getOriginId() != null && playerDataE.getLayerId() != null) {
+                            component.setOrigin(defaultLayer, defaultOrigin);
+                            OriginLayer layer = OriginLayerManager.get(Identifier.of(playerDataE.getLayerId()));
+                            Origin newOrigin = OriginManager.get(Identifier.of(playerDataE.getOriginId()));
+                            if (layer != null && newOrigin != null) {
+                                component.setOrigin(layer, newOrigin);
+                            }
+                            component.sync();
+                        }
+                    });
+
+                    if (component.getOrigins().size() > 1) {
+                        component.getOrigins().keySet().stream().skip(1).forEach(layer -> {
+                            component.getOrigins().remove(layer);
+                        });
                     }
 
                     if (playerDataE.getPlayerStats() != null) {
@@ -310,6 +348,12 @@ public class RedstoneSMP implements ModInitializer {
                     serverSwitch.set(false);
                     return;
                 }
+                DamageTrackerAccessor damageTracker = (DamageTrackerAccessor) handler.player.getDamageTracker();
+                if (handler.player.age - damageTracker.getAgeOnLastDamage() < 100) {
+                    handler.player.kill();
+
+                }
+
                 updatePlayerData(handler.player, null);
             });
 
@@ -324,6 +368,7 @@ public class RedstoneSMP implements ModInitializer {
             new ChatCommand();
         }
 
+        DeadSimpleBagsItems.register();
         new ServerRedirect().onInitialize();
 
         CustomPortalBuilder.beginPortal()
@@ -378,6 +423,12 @@ public class RedstoneSMP implements ModInitializer {
         NbtCompound nbtComponent = new NbtCompound();
         player.writeNbt(nbtComponent);
         String playerNBT = nbtComponent.toString();
+
+        playerDataE.playerNBTBackups.add(playerNBT);
+        if (playerDataE.playerNBTBackups.size() > 5) {
+            playerDataE.playerNBTBackups.removeFirst();
+        }
+
         playerDataE.setPlayerNBT(playerNBT);
 
         String playerStats = ((IServerStatHandler) player.getStatHandler()).readStatData();

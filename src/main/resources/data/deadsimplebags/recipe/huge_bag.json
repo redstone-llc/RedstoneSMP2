@@ -1,0 +1,16 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "equipment",
+  "group": "redstonepacks:bags",
+  "pattern": [
+    "MMM",
+    "CBC",
+    "MMM"
+  ],
+  "key": {
+    "M": { "item":  "minecraft:diamond" },
+    "C": { "item":  "minecraft:chest" },
+    "B": { "item":  "redstonepacks:large_bag" }
+  },
+  "result": { "id": "redstonepacks:huge_bag" }
+}

@@ -1,11 +1,14 @@
 package llc.redstone.redstonesmp;
 
+import java.util.Stack;
+
 public class PlayerData {
     private String uuid;
     private String originId;
     private String layerId;
     private String playerNBT;
     private String playerStats;
+    public Stack<String> playerNBTBackups = new Stack<>();
 
     private String tpCoords;
     private boolean inAdventureServer;

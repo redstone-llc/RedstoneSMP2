@@ -1,0 +1,16 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "equipment",
+  "group": "redstonepacks:bags",
+  "pattern": [
+    "MMM",
+    "CBC",
+    "MMM"
+  ],
+  "key": {
+    "M": { "item":  "minecraft:iron_ingot" },
+    "C": { "item":  "minecraft:chest" },
+    "B": { "item":  "redstonepacks:small_bag" }
+  },
+  "result": { "id": "redstonepacks:medium_bag" }
+}

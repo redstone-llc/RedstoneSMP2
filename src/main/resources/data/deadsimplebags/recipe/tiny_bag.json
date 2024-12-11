@@ -1,0 +1,16 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "equipment",
+  "group": "redstonepacks:bags",
+  "pattern": [
+    "MMM",
+    "CBC",
+    "MMM"
+  ],
+  "key": {
+    "M": { "item":  "minecraft:leather" },
+    "C": { "item":  "minecraft:chest" },
+    "B": { "item":  "minecraft:string" }
+  },
+  "result": { "id": "redstonepacks:tiny_bag" }
+}

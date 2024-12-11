@@ -1,0 +1,14 @@
+{
+  "item.redstonepacks.tiny_bag": "Tiny Bag",
+  "item.redstonepacks.small_bag": "Small Bag",
+  "item.redstonepacks.medium_bag": "Medium Bag",
+  "item.redstonepacks.large_bag": "Large Bag",
+  "item.redstonepacks.huge_bag": "Huge Bag",
+  "item.redstonepacks.massive_bag": "Massive Bag",
+  "redstonepacks.pickup_mode": "Pickup mode: %s",
+  "redstonepacks.pickup_mode.none": "none",
+  "redstonepacks.pickup_mode.all": "all",
+  "redstonepacks.pickup_mode.existing": "existing",
+  "redstonepacks.pickup_mode.overflow": "overflow",
+  "redstonepacks.tooltip.cycle_pickup_mode": "Sneak + Use to cycle"
+}
