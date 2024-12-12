@@ -1,0 +1,47 @@
+{
+	"parent": "item/generated",
+	"textures": {
+		"layer0": "minecraft:item/red_dye"
+	},
+	"overrides": [
+		{
+			"predicate": {
+				"custom_model_data": 1
+			},
+			"model": "animated_java:empty"
+		},
+		{
+			"predicate": {
+				"custom_model_data": 2
+			},
+			"model": "animated_java:item/infinity_cave/red_tint/bone"
+		},
+		{
+			"predicate": {
+				"custom_model_data": 3
+			},
+			"model": "animated_java:item/infinity_cave/red_tint/bone2"
+		},
+		{
+			"predicate": {
+				"custom_model_data": 4
+			},
+			"model": "animated_java:item/infinity_cave/red_tint/bone5"
+		},
+		{
+			"predicate": {
+				"custom_model_data": 5
+			},
+			"model": "animated_java:item/infinity_cave/red_tint/bone3"
+		},
+		{
+			"predicate": {
+				"custom_model_data": 6
+			},
+			"model": "animated_java:item/infinity_cave/red_tint/bone4"
+		}
+	],
+	"animated_java": {
+		"infinity_cave": [1, 2, 3, 4, 5, 6]
+	}
+}

@@ -21,7 +21,7 @@ import io.github.apace100.origins.origin.OriginLayerManager;
 import io.github.apace100.origins.origin.OriginManager;
 import io.github.apace100.origins.registry.ModComponents;
 import io.icker.factions.api.persistents.User;
-import io.icker.factions.mixin.DamageTrackerAccessor;
+import llc.redstone.redstonesmp.mixin.DamageTrackerAccessor;
 import llc.redstone.redstonesmp.command.*;
 import llc.redstone.redstonesmp.database.MessageQueueCollection;
 import llc.redstone.redstonesmp.database.OriginContinentCollection;
@@ -53,6 +53,8 @@ import net.minecraft.block.BedBlock;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
+import net.minecraft.entity.damage.DamageTracker;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.Items;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.StringNbtReader;
@@ -349,9 +351,8 @@ public class RedstoneSMP implements ModInitializer {
                     return;
                 }
                 DamageTrackerAccessor damageTracker = (DamageTrackerAccessor) handler.player.getDamageTracker();
-                if (handler.player.age - damageTracker.getAgeOnLastDamage() < 100) {
+                if (handler.player.age - damageTracker.getAgeOnLastDamage() < 100 && handler.player.getLastAttacker() instanceof PlayerEntity) {
                     handler.player.kill();
-
                 }
 
                 updatePlayerData(handler.player, null);

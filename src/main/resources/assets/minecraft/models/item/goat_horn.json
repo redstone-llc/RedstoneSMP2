@@ -1,0 +1,27 @@
+{
+    "parent": "minecraft:item/generated",
+    "textures": {
+      "layer0": "minecraft:item/goat_horn"
+    },
+    "overrides": [
+      {
+        "predicate": {
+          "custom_model_data": 1
+        },
+        "model": "infinity_cave:weapons/katana"
+      },
+      {
+        "predicate": {
+          "custom_model_data": 2
+        },
+        "model": "infinity_cave:weapons/ender_sword"
+      },
+      {
+        "predicate": {
+          "custom_model_data": 3
+        },
+        "model": "infinity_cave:weapons/bonding_sword"
+      }
+    ]
+  }
+  

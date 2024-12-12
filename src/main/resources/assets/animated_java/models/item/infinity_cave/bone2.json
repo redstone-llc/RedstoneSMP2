@@ -1,0 +1,87 @@
+{
+	"textures": {
+		"1": "animated_java:item/infinity_cave/body",
+		"6": "animated_java:item/infinity_cave/head"
+	},
+	"elements": [
+		{
+			"from": [1.82462, 3.54741, 1.87334],
+			"to": [10.97546, 15.70839, 11.98742],
+			"rotation": {
+				"angle": 0,
+				"axis": "y",
+				"origin": [7.00207, 3.78822, 3.31821]
+			},
+			"faces": {
+				"north": {
+					"uv": [3.5, 5, 7, 9.75],
+					"texture": "#1"
+				},
+				"east": {
+					"uv": [4, 0, 8, 4.75],
+					"texture": "#1"
+				},
+				"south": {
+					"uv": [0, 5, 3.5, 9.75],
+					"texture": "#1"
+				},
+				"west": {
+					"uv": [0, 0, 4, 4.75],
+					"texture": "#1"
+				},
+				"up": {
+					"uv": [10.5, 9, 7, 5],
+					"rotation": 180,
+					"texture": "#1"
+				},
+				"down": {
+					"uv": [11.5, 0, 8, 4],
+					"rotation": 180,
+					"texture": "#1"
+				}
+			}
+		},
+		{
+			"from": [0.62056, 15.26602, 0.66928],
+			"to": [12.17952, 27.54741, 13.19148],
+			"rotation": {
+				"angle": 0,
+				"axis": "y",
+				"origin": [7.00207, 16.71089, 3.31821]
+			},
+			"faces": {
+				"north": {
+					"uv": [4, 4, 7.5, 8],
+					"texture": "#6"
+				},
+				"east": {
+					"uv": [0, 4, 4, 8],
+					"texture": "#6"
+				},
+				"south": {
+					"uv": [4, 0, 7.5, 4],
+					"texture": "#6"
+				},
+				"west": {
+					"uv": [0, 0, 4, 4],
+					"texture": "#6"
+				},
+				"up": {
+					"uv": [11, 4, 7.5, 0],
+					"rotation": 180,
+					"texture": "#6"
+				},
+				"down": {
+					"uv": [11, 4, 7.5, 8],
+					"rotation": 180,
+					"texture": "#6"
+				}
+			}
+		}
+	],
+	"display": {
+		"head": {
+			"rotation": [0, 180, 0]
+		}
+	}
+}

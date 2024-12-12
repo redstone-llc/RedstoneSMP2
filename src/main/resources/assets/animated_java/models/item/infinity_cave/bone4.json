@@ -1,0 +1,49 @@
+{
+	"textures": {
+		"5": "animated_java:item/infinity_cave/left_leg"
+	},
+	"elements": [
+		{
+			"from": [1.12383, -15.30286, 5.03693],
+			"to": [8.74883, 2.16914, 10.08743],
+			"rotation": {
+				"angle": 0,
+				"axis": "y",
+				"origin": [4.31883, -15.30286, 6.40193]
+			},
+			"faces": {
+				"north": {
+					"uv": [2.5, 0, 5, 6.5],
+					"texture": "#5"
+				},
+				"east": {
+					"uv": [0, 6.5, 1.75, 13],
+					"texture": "#5"
+				},
+				"south": {
+					"uv": [0, 0, 2.5, 6.5],
+					"texture": "#5"
+				},
+				"west": {
+					"uv": [5, 0, 6.75, 6.5],
+					"texture": "#5"
+				},
+				"up": {
+					"uv": [4.5, 8.25, 2, 6.5],
+					"rotation": 180,
+					"texture": "#5"
+				},
+				"down": {
+					"uv": [7, 6.5, 4.5, 8.25],
+					"rotation": 180,
+					"texture": "#5"
+				}
+			}
+		}
+	],
+	"display": {
+		"head": {
+			"rotation": [0, 180, 0]
+		}
+	}
+}
