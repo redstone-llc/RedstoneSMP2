@@ -1,0 +1,20 @@
+{
+  "variants": {
+    "facing=east": {
+      "model": "redstone:block/diamond_anvil",
+      "y": 180
+    },
+    "facing=north": {
+      "model": "redstone:block/diamond_anvil",
+      "y": 270
+    },
+    "facing=south": {
+      "model": "redstone:block/diamond_anvil",
+      "y": 90
+    },
+    "facing=west": {
+      "model": "redstone:block/diamond_anvil",
+      "y": 0
+    }
+  }
+}

@@ -12,6 +12,8 @@ import org.bson.codecs.configuration.CodecRegistry;
 import org.bson.codecs.pojo.PojoCodecProvider;
 import org.bson.conversions.Bson;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 import static com.mongodb.MongoClient.getDefaultCodecRegistry;
@@ -22,7 +24,7 @@ public class PlayerDataCollection {
     private MongoClient mongoClient;
     private MongoCollection<PlayerData> playerDataCollection;
     public PlayerDataCollection() {
-        CodecProvider pojoCodecProvider = PojoCodecProvider.builder().register(PlayerData.class).automatic(true).build();
+        CodecProvider pojoCodecProvider = PojoCodecProvider.builder().register(PlayerData.class, PlayerData.FactionData.class).automatic(true).build();
         CodecRegistry pojoCodecRegistry = fromRegistries(getDefaultCodecRegistry(), fromProviders(pojoCodecProvider));
 
         String uri = RedstoneSMP.config.get("mongo-uri").getAsString();
@@ -52,6 +54,14 @@ public class PlayerDataCollection {
     public boolean hasPlayerData(UUID uuid) {
         String id = uuid.toString().replace("-", "");
         return playerDataCollection.find(BsonDocument.parse("{uuid: \"" + id + "\"}")).first() != null;
+    }
+
+    public List<PlayerData> all() {
+        List<PlayerData> playerData = new ArrayList<>();
+        for (PlayerData data : playerDataCollection.find()) {
+            playerData.add(data);
+        }
+        return playerData;
     }
 
     public void deletePlayerData(UUID uuid) {

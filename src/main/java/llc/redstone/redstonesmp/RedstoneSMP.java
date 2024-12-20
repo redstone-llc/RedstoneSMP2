@@ -21,6 +21,8 @@ import io.github.apace100.origins.origin.OriginLayerManager;
 import io.github.apace100.origins.origin.OriginManager;
 import io.github.apace100.origins.registry.ModComponents;
 import io.icker.factions.api.persistents.User;
+import llc.redstone.redstonesmp.blocks.BlockRegistry;
+import llc.redstone.redstonesmp.blocks.RedstoneBlockTags;
 import llc.redstone.redstonesmp.mixin.DamageTrackerAccessor;
 import llc.redstone.redstonesmp.command.*;
 import llc.redstone.redstonesmp.database.MessageQueueCollection;
@@ -49,14 +51,12 @@ import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents;
 import net.fabricmc.loader.api.FabricLoader;
 import net.kyrptonaught.customportalapi.api.CustomPortalBuilder;
 import net.kyrptonaught.customportalapi.util.SHOULDTP;
-import net.minecraft.block.BedBlock;
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.Blocks;
+import net.minecraft.block.*;
 import net.minecraft.entity.damage.DamageTracker;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.Items;
 import net.minecraft.nbt.NbtCompound;
+import net.minecraft.nbt.NbtIo;
 import net.minecraft.nbt.StringNbtReader;
 import net.minecraft.network.message.SignedMessage;
 import net.minecraft.server.MinecraftServer;
@@ -70,7 +70,9 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
 
 import java.io.File;
+import java.io.IOException;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -91,8 +93,6 @@ public class RedstoneSMP implements ModInitializer {
     public static OriginContinentCollection originContinentCollection;
     public static MessageQueueCollection messageQueueCollection;
     public static AtomicBoolean serverSwitch = new AtomicBoolean(false);
-
-
     public static HashMap<UUID, Boolean> frozenPlayers = new HashMap<>();
 
     private static PlayerManager playerManager;
@@ -100,6 +100,7 @@ public class RedstoneSMP implements ModInitializer {
     @Override
     public void onInitialize() {
         if (FabricLoader.getInstance().getEnvironmentType() == EnvType.SERVER) {
+
             File configFile = new File("config/smp_config.json");
             if (!configFile.exists()) {
                 try {
@@ -201,6 +202,7 @@ public class RedstoneSMP implements ModInitializer {
             ServerLifecycleEvents.SERVER_STOPPING.register((server) -> {
                 for (ServerPlayerEntity player : playerManager.getPlayerList()) {
                     updatePlayerData(player, null);
+                    createNewBackup(player);
                 }
             });
 
@@ -214,99 +216,115 @@ public class RedstoneSMP implements ModInitializer {
                 updatePlayerData.interrupt();
             });
 
-            ServerPlayConnectionEvents.JOIN.register((ServerPlayNetworkHandler handler, PacketSender sender, MinecraftServer server) -> {
-                if (playerDataCollection.hasPlayerData(handler.getPlayer().getUuid())) {
-                    PlayerData playerDataE = playerDataCollection.getPlayerData(handler.getPlayer().getUuid());
+            ServerPlayConnectionEvents.INIT.register((ServerPlayNetworkHandler handler, MinecraftServer server) -> {
+                try {
+                    if (playerDataCollection.hasPlayerData(handler.getPlayer().getUuid())) {
+                        System.out.println("Player " + handler.getPlayer().getName() + " (" + handler.getPlayer().getUuid() + ") is returning to the server");
+                        PlayerData playerDataE = playerDataCollection.getPlayerData(handler.getPlayer().getUuid());
 
-                    //Server Switcher
-                    if (playerDataE.isInAdventureServer() && server.getOverworld().getSeed() == 27594263L) {
-                        ServerRedirect.sendTo(handler.getPlayer(), "adventure.redstone.llc");
-                        serverSwitch.set(true);
-                        return;
-                    } else if (!playerDataE.isInAdventureServer() && server.getOverworld().getSeed() != 27594263L) {
-                        serverSwitch.set(true);
-                        handler.getPlayer().networkHandler.disconnect(Text.of("Join the server using smp.redstone.llc"));
-                        return;
-                    }
+                        createNewBackup(handler.getPlayer());
 
-                    if (!playerDataE.selectedContinent && playerDataE.getOriginId() != null) {
-                        ContinentMessageUtils.sendContinentMessage(handler.getPlayer(), playerDataE.getOriginId());
-                        frozenPlayers.put(handler.getPlayer().getUuid(), true);
-                    }
+                        //Server Switcher
+                        if (!config.has("multi-server") || config.get("multi-server").getAsBoolean()) {
+                            if (playerDataE.isInAdventureServer() && server.getOverworld().getSeed() == 27594263L) {
+                                ServerRedirect.sendTo(handler.getPlayer(), "adventure.redstone.llc");
+                                serverSwitch.set(true);
+                                return;
+                            } else if (!playerDataE.isInAdventureServer() && server.getOverworld().getSeed() != 27594263L) {
+                                serverSwitch.set(true);
+                                handler.getPlayer().networkHandler.disconnect(Text.of("Join the server using smp.redstone.llc"));
+                                return;
+                            }
+                        }
 
-                    if (playerDataE.regionName == null && playerDataE.selectedContinent) {
-                        OriginContinents r = originContinentCollection.getOriginLocation(playerDataE.getOriginId());
-                        if (r == null) return;
-                        List<OriginRegion> regions = r.regions;
-                        //random region
-                        OriginRegion region = regions.get((int) (Math.random() * regions.size()));
-                        playerDataE.regionName = region.name;
-                        playerDataCollection.updatePlayerData(playerDataE);
-                    }
+                        if (!playerDataE.selectedContinent && playerDataE.getOriginId() != null) {
+                            ContinentMessageUtils.sendContinentMessage(handler.getPlayer(), playerDataE.getOriginId());
+                            frozenPlayers.put(handler.getPlayer().getUuid(), true);
+                        }
 
-                    //Player Inv, Stats, and TP
-                    if (playerDataE.getPlayerNBT() != null) {
+                        if (playerDataE.username == null) {
+                            playerDataE.username = handler.getPlayer().getGameProfile().getName();
+                        }
+
+
+                        if (playerDataE.regionName == null && playerDataE.selectedContinent) {
+                            OriginContinents r = originContinentCollection.getOriginLocation(playerDataE.getOriginId());
+                            if (r == null) return;
+                            List<OriginRegion> regions = r.regions;
+                            //random region
+                            OriginRegion region = regions.get((int) (Math.random() * regions.size()));
+                            playerDataE.regionName = region.name;
+                        }
+
+                        //Player Inv, Stats, and TP
+                        if (playerDataE.getPlayerNBT() != null) {
 //                        NbtCompound nbtComponent = new NbtCompound();
 //                        handler.getPlayer().writeNbt(nbtComponent);
-                        NbtCompound newNbt;
-                        try {
-                            newNbt = StringNbtReader.parse(playerDataE.getPlayerNBT());
-                        } catch (CommandSyntaxException e) {
-                            throw new RuntimeException(e);
-                        }
-
-                        handler.getPlayer().readNbt(newNbt);
-                    }
-
-                    //Origin Sync
-                    OriginComponent component = ModComponents.ORIGIN.get(handler.getPlayer());
-                    OriginLayer defaultLayer = OriginLayerManager.get(Origins.identifier("origin"));
-                    Origin defaultOrigin = OriginManager.get(Origins.identifier("empty"));
-
-                    component.getOrigins().values().stream().findFirst().ifPresent(origin -> {
-                        if (origin.getId() != null && playerDataE.getOriginId() != null && playerDataE.getLayerId() != null) {
-                            component.setOrigin(defaultLayer, defaultOrigin);
-                            OriginLayer layer = OriginLayerManager.get(Identifier.of(playerDataE.getLayerId()));
-                            Origin newOrigin = OriginManager.get(Identifier.of(playerDataE.getOriginId()));
-                            if (layer != null && newOrigin != null) {
-                                component.setOrigin(layer, newOrigin);
+                            NbtCompound newNbt;
+                            try {
+                                newNbt = StringNbtReader.parse(playerDataE.getPlayerNBT());
+                            } catch (CommandSyntaxException e) {
+                                throw new RuntimeException(e);
                             }
-                            component.sync();
+
+                            handler.getPlayer().readNbt(newNbt);
                         }
-                    });
 
-                    if (component.getOrigins().size() > 1) {
-                        component.getOrigins().keySet().stream().skip(1).forEach(layer -> {
-                            component.getOrigins().remove(layer);
+                        //Origin Sync
+                        OriginComponent component = ModComponents.ORIGIN.get(handler.getPlayer());
+                        OriginLayer defaultLayer = OriginLayerManager.get(Origins.identifier("origin"));
+                        Origin defaultOrigin = OriginManager.get(Origins.identifier("empty"));
+
+                        component.getOrigins().values().stream().findFirst().ifPresent(origin -> {
+                            if (origin.getId() != null && playerDataE.getOriginId() != null && playerDataE.getLayerId() != null) {
+                                component.setOrigin(defaultLayer, defaultOrigin);
+                                OriginLayer layer = OriginLayerManager.get(Identifier.of(playerDataE.getLayerId()));
+                                Origin newOrigin = OriginManager.get(Identifier.of(playerDataE.getOriginId()));
+                                if (layer != null && newOrigin != null) {
+                                    component.setOrigin(layer, newOrigin);
+                                }
+                                component.sync();
+                            }
                         });
+
+                        if (component.getOrigins().size() > 1) {
+                            component.getOrigins().keySet().stream().skip(1).forEach(layer -> {
+                                component.getOrigins().remove(layer);
+                            });
+                        }
+
+                        if (playerDataE.getPlayerStats() != null) {
+                            ((IServerStatHandler) handler.getPlayer().getStatHandler()).writeStatData(playerDataE.getPlayerStats());
+                        }
+
+                        if (playerDataE.getTpCoords() != null) {
+                            String[] coords = playerDataE.getTpCoords().split(",");
+                            handler.getPlayer().teleport(server.getOverworld(), Double.parseDouble(coords[0]), Double.parseDouble(coords[1]), Double.parseDouble(coords[2]), 0, 0);
+
+                            playerDataE.setTpCoords(null);
+                        }
+
+                        updatePlayerData(handler.getPlayer(), playerDataE);
+                        return;
+                    } else {
+                        //If player is new to the server
+                        System.out.println("Player " + handler.getPlayer().getName() + " (" + handler.getPlayer().getUuid() + ") is new to the server");
+                        NbtCompound nbtComponent = new NbtCompound();
+                        handler.getPlayer().writeNbt(nbtComponent);
+                        String playerNBT = nbtComponent.toString();
+
+                        String playerStats = ((IServerStatHandler) handler.getPlayer().getStatHandler()).readStatData();
+
+
+                        playerDataCollection.insertPlayerData(
+                                new PlayerData(
+                                        handler.getPlayer().getUuid().toString().replace("-", ""),
+                                        null, null, playerNBT, playerStats, null, false, false
+                                )
+                        );
                     }
-
-                    if (playerDataE.getPlayerStats() != null) {
-                        ((IServerStatHandler) handler.getPlayer().getStatHandler()).writeStatData(playerDataE.getPlayerStats());
-                    }
-
-                    if (playerDataE.getTpCoords() != null) {
-                        String[] coords = playerDataE.getTpCoords().split(",");
-                        handler.getPlayer().teleport(server.getOverworld(), Double.parseDouble(coords[0]), Double.parseDouble(coords[1]), Double.parseDouble(coords[2]), 0, 0);
-
-                        playerDataE.setTpCoords(null);
-                        playerDataCollection.updatePlayerData(playerDataE);
-                    }
-                } else {
-                    //If player is new to the server
-                    NbtCompound nbtComponent = new NbtCompound();
-                    handler.getPlayer().writeNbt(nbtComponent);
-                    String playerNBT = nbtComponent.toString();
-
-                    String playerStats = ((IServerStatHandler) handler.getPlayer().getStatHandler()).readStatData();
-
-
-                    playerDataCollection.insertPlayerData(
-                            new PlayerData(
-                                    handler.getPlayer().getUuid().toString().replace("-", ""),
-                                    null, null, playerNBT, playerStats, null, false, false
-                            )
-                    );
+                } catch (Exception e) {
+                    e.printStackTrace();
                 }
             });
 
@@ -333,6 +351,12 @@ public class RedstoneSMP implements ModInitializer {
                 }
             });
 
+            ServerLifecycleEvents.AFTER_SAVE.register((server, flush, force) -> {
+                for (ServerPlayerEntity player : server.getPlayerManager().getPlayerList()) {
+                    createNewBackup(player);
+                }
+            });
+
             AttackEntityCallback.EVENT.register((player, world, hand, entity, entityHitResult) -> {
                 if (frozenPlayers.containsKey(player.getUuid())) {
                     return ActionResult.FAIL;
@@ -355,6 +379,7 @@ public class RedstoneSMP implements ModInitializer {
                     handler.player.kill();
                 }
 
+                createNewBackup(handler.player);
                 updatePlayerData(handler.player, null);
             });
 
@@ -363,11 +388,16 @@ public class RedstoneSMP implements ModInitializer {
                 CreateRegionCommand.register(dispatcher);
                 RegionSelectCommand.register(dispatcher);
                 UnFreezeCommand.register(dispatcher);
+                ViewBackupCommand.register(dispatcher);
             });
+
             new LocalChat();
             new FactionChat();
             new ChatCommand();
+            new RedstoneSMPCommand();
         }
+
+        BlockRegistry.register();
 
         DeadSimpleBagsItems.register();
         new ServerRedirect().onInitialize();
@@ -382,6 +412,9 @@ public class RedstoneSMP implements ModInitializer {
                     if (!(player instanceof ServerPlayerEntity playerEntity)) return SHOULDTP.CANCEL_TP;
                     if (!playerDataCollection.hasPlayerData(player.getUuid())) return SHOULDTP.CANCEL_TP;
 
+                    if (config.has("portalsEnabled") && !config.get("portalsEnabled").getAsBoolean()) {
+                        return SHOULDTP.CANCEL_TP;
+                    }
                     PlayerData playerDataE = playerDataCollection.getPlayerData(player.getUuid());
                     if (playerDataE.isInAdventureServer()) {
                         //From B to A aka Adventure to SMP
@@ -389,7 +422,6 @@ public class RedstoneSMP implements ModInitializer {
                             if (loc.isInsideB(playerEntity.getX(), playerEntity.getY(), playerEntity.getZ())) {
                                 Vec3d pos = loc.centerA();
                                 playerDataE.setTpCoords(pos.getX() + "," + pos.getY() + "," + pos.getZ());
-                                playerDataCollection.updatePlayerData(playerDataE);
                                 break;
                             }
                         }
@@ -397,14 +429,13 @@ public class RedstoneSMP implements ModInitializer {
                         ServerRedirect.sendTo(playerEntity, "smp.redstone.llc");
 
                         playerDataE.setInAdventureServer(false);
-                        playerDataCollection.updatePlayerData(playerDataE);
+                        updatePlayerData(playerEntity, playerDataE);
                     } else {
                         //From A to B aka SMP to Adventure
                         for (PortalLocation loc : portalLocationCollection.getPortalLocations()) {
                             if (loc.isInsideA(playerEntity.getX(), playerEntity.getY(), playerEntity.getZ())) {
                                 Vec3d pos = loc.centerB();
                                 playerDataE.setTpCoords(pos.getX() + "," + pos.getY() + "," + pos.getZ());
-                                playerDataCollection.updatePlayerData(playerDataE);
                                 break;
                             }
                         }
@@ -412,7 +443,7 @@ public class RedstoneSMP implements ModInitializer {
                         ServerRedirect.sendTo(playerEntity, "adventure.redstone.llc");
 
                         playerDataE.setInAdventureServer(true);
-                        playerDataCollection.updatePlayerData(playerDataE);
+                        updatePlayerData(playerEntity, playerDataE);
                     }
                     return SHOULDTP.CANCEL_TP;
                 })
@@ -426,7 +457,7 @@ public class RedstoneSMP implements ModInitializer {
         String playerNBT = nbtComponent.toString();
 
         playerDataE.playerNBTBackups.add(playerNBT);
-        if (playerDataE.playerNBTBackups.size() > 5) {
+        if (playerDataE.playerNBTBackups.size() > 20) {
             playerDataE.playerNBTBackups.removeFirst();
         }
 
@@ -444,7 +475,30 @@ public class RedstoneSMP implements ModInitializer {
             playerDataE.setLayerId(layer.getId().toString());
         });
 
+        if (FabricLoader.getInstance().isModLoaded("factions")) {
+            FactionManager.updatePlayerFaction(player, playerDataE);
+        }
+
         playerDataCollection.updatePlayerData(playerDataE);
+    }
+
+    private static void createNewBackup(ServerPlayerEntity player) {
+        NbtCompound nbtComponent = new NbtCompound();
+        player.writeNbt(nbtComponent);
+
+        //Save to file called /backups/{player.getUuid()}/{System.currentTimeMillis()}.nbt
+        File backupFolder = new File("backups/" + player.getUuid());
+        if (!backupFolder.exists()) {
+            backupFolder.mkdirs();
+        }
+
+        File file = new File(backupFolder, System.currentTimeMillis() + ".dat");
+
+        try {
+            NbtIo.writeCompressed(nbtComponent, Path.of(file.getPath()));
+        } catch (IOException e) {
+            System.out.println("Failed to create backup for " + player.getName());
+        }
     }
 
     public static Map<String, Vec3d> getOriginsLocations() {

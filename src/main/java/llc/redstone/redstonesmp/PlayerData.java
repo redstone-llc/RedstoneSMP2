@@ -9,11 +9,14 @@ public class PlayerData {
     private String playerNBT;
     private String playerStats;
     public Stack<String> playerNBTBackups = new Stack<>();
-
     private String tpCoords;
     private boolean inAdventureServer;
     public String regionName;
     public boolean selectedContinent;
+    public String username;
+
+
+    public FactionData factionData;
 
     public PlayerData() {
     }
@@ -96,5 +99,18 @@ public class PlayerData {
                 ", tpCoords='" + tpCoords + '\'' +
                 ", inAdventureServer=" + inAdventureServer +
                 '}';
+    }
+
+    public static class FactionData { //This is only used for cross server communication
+        public String factionName;
+        public String color;
+
+        public FactionData() {
+        }
+
+        public FactionData(String factionName, String color) {
+            this.factionName = factionName;
+            this.color = color;
+        }
     }
 }

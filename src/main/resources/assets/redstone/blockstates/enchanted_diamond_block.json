@@ -1,0 +1,5 @@
+{
+  "variants": {
+    "": { "model": "redstone:block/enchanted_diamond_block" }
+  }
+}

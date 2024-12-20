@@ -9,7 +9,8 @@
     "ModPacketsC2SMixin",
     "PacketCodecDispatcherMixin",
     "PlayerItemPickupMixin",
-    "ServerStatHandlerMixin"
+    "ServerStatHandlerMixin",
+    "SetBlockCommandMixin"
   ],
   "injectors": {
     "defaultRequire": 1

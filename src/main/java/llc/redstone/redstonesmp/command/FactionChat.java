@@ -6,6 +6,8 @@ import com.mojang.brigadier.tree.LiteralCommandNode;
 import io.icker.factions.api.persistents.Faction;
 import io.icker.factions.api.persistents.User;
 import io.icker.factions.util.Message;
+import llc.redstone.redstonesmp.PlayerData;
+import llc.redstone.redstonesmp.RedstoneSMP;
 import llc.redstone.redstonesmp.ServerRedirect;
 import llc.redstone.redstonesmp.utils.MessageUtils;
 import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
@@ -51,11 +53,23 @@ public class FactionChat {
     }
 
     public static void sendToFactionUsers(ServerPlayerEntity player, String message) {
-        Faction faction = User.get(player.getUuid()).getFaction();
+        try {
+            PlayerData playerData = RedstoneSMP.playerDataCollection.getPlayerData(player.getUuid());
+            for (PlayerData data : RedstoneSMP.playerDataCollection.all()) {
+                if (data.factionData == null) {
+                    continue;
+                }
 
-        String msg = MessageUtils.formatMessage(player, message, faction.getColor() + "[" + faction.getName() + "] ");
-        player.getServer().getPlayerManager().getPlayerList().stream().filter(p -> faction.getUsers().contains(User.get(p.getUuid()))).forEach(p -> {
-            p.sendMessage(Text.of(msg));
-        });
+                if (data.factionData.factionName.equals(playerData.factionData.factionName)) {
+                    ServerPlayerEntity target = player.getServer().getPlayerManager().getPlayer(
+                            UUID.fromString(data.getUuid().substring(0, 8) + "-" + data.getUuid().substring(8, 12) + "-" + data.getUuid().substring(12, 16) + "-" + data.getUuid().substring(16, 20) + "-" + data.getUuid().substring(20)));
+                    if (target != null) {
+                        target.sendMessage(Text.of(MessageUtils.formatMessage(player, message, playerData.factionData.color + playerData.factionData.factionName + " ")));
+                    }
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 }
