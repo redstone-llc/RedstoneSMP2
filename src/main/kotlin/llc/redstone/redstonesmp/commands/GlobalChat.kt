@@ -1,9 +1,6 @@
 package llc.redstone.redstonesmp.commands
 
-import com.mojang.brigadier.CommandDispatcher
-import com.mojang.brigadier.arguments.IntegerArgumentType
 import com.mojang.brigadier.arguments.StringArgumentType
-import com.mojang.brigadier.builder.LiteralArgumentBuilder
 import llc.redstone.redstonesmp.RedstoneSMP.Companion.playerChatMap
 import llc.redstone.redstonesmp.commands.GlobalChat.Companion.execute
 import llc.redstone.redstonesmp.utils.sendMessage
@@ -45,6 +42,7 @@ class GlobalChat {
             }
             val player = context.player?: return
 
+
             if (message == null ) {
                 if (!playerChatMap.containsKey(player.uuid) || playerChatMap[player.uuid] == "global") {
                     player.sendMessage("§cCHAT §8|§r §cYou are already in global chat.")
@@ -55,7 +53,7 @@ class GlobalChat {
                 return
             }
 
-            val players = player.server.playerManager.playerList
+            val players = context.server.playerManager.playerList
             players.forEach { p ->
                 sendMessage(player, p, message, "")
             }

@@ -2,8 +2,8 @@ import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
-    kotlin("jvm") version "2.0.20"
-    id("fabric-loom") version "1.7.1"
+    kotlin("jvm") version "2.1.0"
+    id("fabric-loom") version "1.11-SNAPSHOT"
     id("maven-publish")
     java
 }
@@ -42,6 +42,12 @@ repositories {
     // See https://docs.gradle.org/current/userguide/declaring_repositories.html
     // for more information about repositories.
     mavenCentral()
+    maven ( url = "https://maven.maxhenkel.de/repository/public" )
+    maven (
+        url = "https://api.modrinth.com/maven"
+    ) {
+        content { includeGroup("maven.modrinth") }
+    }
 }
 
 dependencies {
@@ -50,6 +56,10 @@ dependencies {
     mappings("net.fabricmc:yarn:${project.property("yarn_mappings")}:v2")
     modImplementation("net.fabricmc:fabric-loader:${project.property("loader_version")}")
     modImplementation("net.fabricmc:fabric-language-kotlin:${project.property("kotlin_loader_version")}")
+
+    implementation("de.maxhenkel.voicechat:voicechat-api:${project.property("voicechat_api_version")}")
+    modRuntimeOnly("maven.modrinth:simple-voice-chat:fabric-${project.property("voicechat_mod_version")}")
+
 
     // Fabric API. This is technically optional, but you probably want it anyway.
     modImplementation("net.fabricmc.fabric-api:fabric-api:${project.property("fabric_version")}")

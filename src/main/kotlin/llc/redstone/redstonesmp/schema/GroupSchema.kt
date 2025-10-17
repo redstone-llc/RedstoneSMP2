@@ -6,6 +6,7 @@ import kotlin.collections.ArrayList
 
 data class GroupSchema(
     var name: String,
+    var uuid: UUID,
     var owner: String,
     var players: ArrayList<String>//uuids
 ) {
@@ -19,6 +20,7 @@ data class GroupSchema(
         fun decode(json: JsonObject): GroupSchema {
             return GroupSchema(
                 json["name"].asString,
+                UUID.fromString(json["uuid"].asString),
                 json["owner"].asString,
                 json["players"].asJsonArray.map { it.asString } as ArrayList<String>
             )

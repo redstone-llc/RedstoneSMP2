@@ -5,6 +5,8 @@ import com.mojang.brigadier.context.CommandContext
 import com.mojang.brigadier.suggestion.SuggestionProvider
 import com.mojang.brigadier.suggestion.Suggestions
 import com.mojang.brigadier.suggestion.SuggestionsBuilder
+import de.maxhenkel.voicechat.api.Group.*
+import llc.redstone.redstonesmp.RedstoneSMP
 import llc.redstone.redstonesmp.RedstoneSMP.Companion.groupData
 import llc.redstone.redstonesmp.RedstoneSMP.Companion.playerChatMap
 import llc.redstone.redstonesmp.schema.GroupSchema
@@ -195,13 +197,22 @@ class Group {
                 return
             }
 
-            if (name == "all" || name == "global" || name == "local") {
+            if (name == "all" || name == "global" || name == "local" || name == "voice") {
                 context.sendMessage("§cCHAT §8|§r §cGroup $name is a reserved name.")
                 return
             }
 
             val player = context.player ?: return
-            groupData[name] = GroupSchema(name, player.uuid.toString(), arrayListOf(player.uuid.toString()))
+            val uuid = UUID.randomUUID()
+            groupData[name] = GroupSchema(name, uuid, player.uuid.toString(), arrayListOf(player.uuid.toString()))
+
+            val group = RedstoneSMP.API.groupBuilder()
+                .setId(uuid)
+                .setName(name)
+                .setType(Type.NORMAL)
+                .setPersistent(true)
+                .build()
+
             context.sendMessage("§cCHAT §8|§r §7Group $name has been created.")
         }
 
@@ -217,15 +228,17 @@ class Group {
                 return
             }
 
-            if (groupData[group]!!.players.contains(p.uuid.toString())) {
-                context.sendMessage("§cCHAT §8|§r §cPlayer $player is already in group $group.")
-                return
-            }
-
             val target = context.server.playerManager.getPlayer(player) ?: run {
                 context.sendMessage("§cCHAT §8|§r §cPlayer $player does not exist.")
                 return
             }
+
+            if (groupData[group]!!.players.contains(target.uuid.toString())) {
+                context.sendMessage("§cCHAT §8|§r §cPlayer $player is already in group $group.")
+                return
+            }
+
+
 
             groupData[group]!!.players.add(target.uuid.toString())
             context.sendMessage("§cCHAT §8|§r §7Player ${target.styledDisplayName.string} has been added to group $group.")

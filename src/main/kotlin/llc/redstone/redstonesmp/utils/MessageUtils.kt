@@ -15,11 +15,11 @@ fun sendMessage(sender: ServerPlayerEntity, player: ServerPlayerEntity, message:
     val userGroup = api.userManager.getUser(sender.uuid)?.primaryGroup?: "default"
     when (userGroup) {
         "alt" -> {
-            val text = MutableText.of(PlainTextContent.of("$prefix§8●§r §7")).append(displayName(player)).append(of(" §8>>§r §7$message"))
+            val text = MutableText.of(PlainTextContent.of("$prefix§8●§r §7")).append(displayName(sender)).append(of(" §8>>§r §7$message"))
             player.sendMessage(text)
         }
         else -> {
-            val text = MutableText.of(PlainTextContent.of("$prefix§8●§r ")).append(displayName(player)).append(of(" §8>>§r §f$message"))
+            val text = MutableText.of(PlainTextContent.of("$prefix§8●§r ")).append(displayName(sender)).append(of(" §8>>§r §f$message"))
             player.sendMessage(text)
         }
     }
@@ -35,7 +35,7 @@ fun displayName(player: ServerPlayerEntity): Text? {
 }
 
 fun sendToConsole(sender: ServerPlayerEntity, message: String, prefix: String) {
-    val console = sender.server.commandSource
+    val console = sender.entityWorld.server.commandSource
     val api: LuckPerms = LuckPermsProvider.get()
     val userGroup = api.userManager.getUser(sender.uuid)?.primaryGroup?: "default"
     when (userGroup) {

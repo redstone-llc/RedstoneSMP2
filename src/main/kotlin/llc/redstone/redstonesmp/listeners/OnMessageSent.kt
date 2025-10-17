@@ -2,6 +2,7 @@ package llc.redstone.redstonesmp.listeners
 
 import llc.redstone.redstonesmp.RedstoneSMP.Companion.groupData
 import llc.redstone.redstonesmp.RedstoneSMP.Companion.playerChatMap
+import llc.redstone.redstonesmp.commands.VoiceChat
 import llc.redstone.redstonesmp.utils.sendMessage
 import llc.redstone.redstonesmp.utils.sendToConsole
 import net.fabricmc.fabric.api.message.v1.ServerMessageEvents
@@ -14,7 +15,7 @@ class OnMessageSent {
         fun startListening() {
             ServerMessageEvents.ALLOW_CHAT_MESSAGE.register(AllowChatMessage() { message, sender, params ->
                 if (playerChatMap[sender.uuid] == "local") {
-                    val players = sender.serverWorld.getEntitiesByClass(
+                    val players = sender.entityWorld.getEntitiesByClass(
                         ServerPlayerEntity::class.java,
                         Box(
                             sender.x - 128.0,
@@ -33,17 +34,23 @@ class OnMessageSent {
                 }
 
                 if (!playerChatMap.containsKey(sender.uuid) || playerChatMap[sender.uuid] == "global") {
-                    sender.server.playerManager.playerList.forEach { p ->
+                    sender.entityWorld.server.playerManager.playerList.forEach { p ->
                         sendMessage(sender, p, message.signedContent, "")
                     }
                     sendToConsole(sender, message.signedContent, "")
                     return@AllowChatMessage false
                 }
 
+                if (!playerChatMap.containsKey(sender.uuid) || playerChatMap[sender.uuid] == "voice") {
+                    VoiceChat.sendMessage(message.signedContent, sender)
+                    return@AllowChatMessage false
+                }
+
+
                 val group = playerChatMap[sender.uuid]
                 val data = groupData[group] ?: return@AllowChatMessage true
                 data.players.forEach { member ->
-                    val player = sender.server.playerManager.getPlayer(member) ?: return@forEach
+                    val player = sender.entityWorld.server.playerManager.getPlayer(member) ?: return@forEach
                     sendMessage(sender, player, message.signedContent, "§a${data.name.uppercase()} ")
                 }
                 sendToConsole(sender, message.signedContent, "§a${data.name.uppercase()} ")

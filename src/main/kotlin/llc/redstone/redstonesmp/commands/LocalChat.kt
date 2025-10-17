@@ -59,7 +59,7 @@ class LocalChat {
             }
 
             //get all players in a 128 block radius
-            val players = player.serverWorld.getEntitiesByClass(ServerPlayerEntity::class.java, Box(player.x - 128.0, player.y - 128.0, player.z - 128.0, player.x + 128.0, player.y + 128.0, player.z + 128.0)) { true }
+            val players = player.entityWorld.getEntitiesByClass(ServerPlayerEntity::class.java, Box(player.x - 128.0, player.y - 128.0, player.z - 128.0, player.x + 128.0, player.y + 128.0, player.z + 128.0)) { true }
             players.forEach { p ->
                 sendMessage(player, p, message, "§aLOCAL ")
             }
