@@ -46,15 +46,7 @@ class OnMessageSent {
                     return@AllowChatMessage false
                 }
 
-
-                val group = playerChatMap[sender.uuid]
-                val data = groupData[group] ?: return@AllowChatMessage true
-                data.players.forEach { member ->
-                    val player = sender.entityWorld.server.playerManager.getPlayer(member) ?: return@forEach
-                    sendMessage(sender, player, message.signedContent, "§a${data.name.uppercase()} ")
-                }
-                sendToConsole(sender, message.signedContent, "§a${data.name.uppercase()} ")
-                return@AllowChatMessage false
+                true
             })
         }
     }

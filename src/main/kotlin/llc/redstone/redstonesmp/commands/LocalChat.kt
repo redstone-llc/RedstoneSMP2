@@ -22,7 +22,7 @@ import net.minecraft.text.Text
 fun createLocalChatCommand() {
     CommandRegistrationCallback.EVENT.register { dispatcher, registryAccess, environment ->
         val local = dispatcher.register(literal("localchat")
-            .then(argument("message", StringArgumentType.string())
+            .then(argument("message", StringArgumentType.greedyString())
                     .executes { context ->
                     val source = context.source
                     execute(source, StringArgumentType.getString(context, "message"))
@@ -49,7 +49,7 @@ class LocalChat {
             val player = context.player?: return
 
             if (message == null ) {
-                if (!playerChatMap.containsKey(player.uuid) || playerChatMap[player.uuid] == "local") {
+                if (playerChatMap[player.uuid] == "local") {
                     player.sendMessage("§cCHAT §8|§r §cYou are already in local chat. You can use /globalchat to switch to global chat.")
                 } else {
                     player.sendMessage("§cCHAT §8|§r §7You are now in local chat.")

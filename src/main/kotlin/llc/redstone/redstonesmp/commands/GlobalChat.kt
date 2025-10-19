@@ -15,7 +15,7 @@ import net.minecraft.text.Text
 fun createGlobalChatCommand() {
     CommandRegistrationCallback.EVENT.register { dispatcher, registryAccess, environment ->
         val global = dispatcher.register(literal("globalchat")
-            .then(argument("message", StringArgumentType.string())
+            .then(argument("message", StringArgumentType.greedyString())
                 .executes { context ->
                     val source = context.source
                     execute(source, StringArgumentType.getString(context, "message"))
@@ -28,8 +28,7 @@ fun createGlobalChatCommand() {
                 1
             }
         )
-        dispatcher.register(literal("ac").redirect(global))
-        dispatcher.register(literal("allchat").redirect(global))
+        dispatcher.register(literal("gc").redirect(global))
     }
 }
 
