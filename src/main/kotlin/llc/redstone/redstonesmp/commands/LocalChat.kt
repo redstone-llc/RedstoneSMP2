@@ -3,13 +3,9 @@ package llc.redstone.redstonesmp.commands
 import llc.redstone.redstonesmp.commands.LocalChat.Companion.execute
 import net.minecraft.server.network.ServerPlayerEntity
 import net.minecraft.util.math.Box
-import com.mojang.brigadier.CommandDispatcher
-import com.mojang.brigadier.arguments.IntegerArgumentType
 import com.mojang.brigadier.arguments.StringArgumentType
-import com.mojang.brigadier.builder.LiteralArgumentBuilder
-import com.mojang.brigadier.builder.RequiredArgumentBuilder
 import llc.redstone.redstonesmp.RedstoneSMP.Companion.playerChatMap
-import llc.redstone.redstonesmp.utils.SuggestedArgumentBuilder
+import llc.redstone.redstonesmp.config.RedstoneSMPConfig
 import llc.redstone.redstonesmp.utils.sendMessage
 import llc.redstone.redstonesmp.utils.sendToConsole
 import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback
@@ -59,11 +55,12 @@ class LocalChat {
             }
 
             //get all players in a 128 block radius
-            val players = player.entityWorld.getEntitiesByClass(ServerPlayerEntity::class.java, Box(player.x - 128.0, player.y - 128.0, player.z - 128.0, player.x + 128.0, player.y + 128.0, player.z + 128.0)) { true }
+            val radius = RedstoneSMPConfig.INSTANCE.localChatRadius
+            val players = player.entityWorld.getEntitiesByClass(ServerPlayerEntity::class.java, Box(player.x - radius.x, player.y - radius.y, player.z - radius.z, player.x + radius.x, player.y + radius.y, player.z + radius.z)) { true }
             players.forEach { p ->
-                sendMessage(player, p, message, "§aLOCAL ")
+                sendMessage(player, p, message, RedstoneSMPConfig.INSTANCE.localChatPrefix)
             }
-            sendToConsole(player, message, "§aLOCAL ")
+            sendToConsole(player, message, RedstoneSMPConfig.INSTANCE.localChatPrefix)
         }
     }
 }

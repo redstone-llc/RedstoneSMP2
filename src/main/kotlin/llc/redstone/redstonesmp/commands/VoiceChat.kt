@@ -3,12 +3,12 @@ package llc.redstone.redstonesmp.commands
 import com.mojang.brigadier.arguments.StringArgumentType
 import llc.redstone.redstonesmp.RedstoneSMP
 import llc.redstone.redstonesmp.RedstoneSMP.Companion.playerChatMap
+import llc.redstone.redstonesmp.config.RedstoneSMPConfig
 import llc.redstone.redstonesmp.utils.sendMessage
 import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback
 import net.minecraft.server.command.CommandManager.argument
 import net.minecraft.server.command.CommandManager.literal
 import net.minecraft.server.network.ServerPlayerEntity
-import net.minecraft.text.Text
 import kotlin.collections.set
 
 fun createVoiceChatCommand() {
@@ -48,7 +48,7 @@ object VoiceChat {
         }
 
         members.forEach { member ->
-            sendMessage(player, member, message, "§aVOICE ")
+            sendMessage(player, member, message, RedstoneSMPConfig.INSTANCE.voiceChatPrefix)
         }
     }
 }

@@ -1,8 +1,8 @@
 package llc.redstone.redstonesmp.listeners
 
-import llc.redstone.redstonesmp.RedstoneSMP.Companion.groupData
 import llc.redstone.redstonesmp.RedstoneSMP.Companion.playerChatMap
 import llc.redstone.redstonesmp.commands.VoiceChat
+import llc.redstone.redstonesmp.config.RedstoneSMPConfig
 import llc.redstone.redstonesmp.utils.sendMessage
 import llc.redstone.redstonesmp.utils.sendToConsole
 import net.fabricmc.fabric.api.message.v1.ServerMessageEvents
@@ -27,17 +27,17 @@ class OnMessageSent {
                         )
                     ) { true }
                     players.forEach { p ->
-                        sendMessage(sender, p, message.signedContent, "§aLOCAL ")
+                        sendMessage(sender, p, message.signedContent, RedstoneSMPConfig.INSTANCE.localChatPrefix)
                     }
-                    sendToConsole(sender, message.signedContent, "§aLOCAL ")
+                    sendToConsole(sender, message.signedContent, RedstoneSMPConfig.INSTANCE.localChatPrefix)
                     return@AllowChatMessage false
                 }
 
                 if (!playerChatMap.containsKey(sender.uuid) || playerChatMap[sender.uuid] == "global") {
                     sender.entityWorld.server.playerManager.playerList.forEach { p ->
-                        sendMessage(sender, p, message.signedContent, "")
+                        sendMessage(sender, p, message.signedContent, RedstoneSMPConfig.INSTANCE.globalChatPrefix)
                     }
-                    sendToConsole(sender, message.signedContent, "")
+                    sendToConsole(sender, message.signedContent, RedstoneSMPConfig.INSTANCE.globalChatPrefix)
                     return@AllowChatMessage false
                 }
 

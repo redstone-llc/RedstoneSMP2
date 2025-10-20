@@ -48,6 +48,7 @@ repositories {
     ) {
         content { includeGroup("maven.modrinth") }
     }
+    maven("https://maven.nucleoid.xyz/") { name = "Nucleoid" }
 }
 
 dependencies {
@@ -59,11 +60,15 @@ dependencies {
 
     implementation("de.maxhenkel.voicechat:voicechat-api:${project.property("voicechat_api_version")}")
     modRuntimeOnly("maven.modrinth:simple-voice-chat:fabric-${project.property("voicechat_mod_version")}")
+    modImplementation("maven.modrinth:styled-chat:${project.property("styled_chat_version")}")
+
+    modImplementation(include("eu.pb4:predicate-api:0.6.1+1.21.9")!!)
+    modImplementation(include("eu.pb4:placeholder-api:2.8.0+1.21.9")!!)
+    modImplementation(include("me.lucko:fabric-permissions-api:0.4.2-patbox.1")!!)
 
 
     // Fabric API. This is technically optional, but you probably want it anyway.
     modImplementation("net.fabricmc.fabric-api:fabric-api:${project.property("fabric_version")}")
-    compileOnly("net.luckperms:api:${project.property("luckperms_version")}")
 }
 
 tasks.processResources {

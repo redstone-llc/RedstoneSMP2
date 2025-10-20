@@ -3,6 +3,7 @@ package llc.redstone.redstonesmp.commands
 import com.mojang.brigadier.arguments.StringArgumentType
 import llc.redstone.redstonesmp.RedstoneSMP.Companion.playerChatMap
 import llc.redstone.redstonesmp.commands.GlobalChat.Companion.execute
+import llc.redstone.redstonesmp.config.RedstoneSMPConfig
 import llc.redstone.redstonesmp.utils.sendMessage
 import llc.redstone.redstonesmp.utils.sendToConsole
 import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback
@@ -54,9 +55,9 @@ class GlobalChat {
 
             val players = context.server.playerManager.playerList
             players.forEach { p ->
-                sendMessage(player, p, message, "")
+                sendMessage(player, p, message, RedstoneSMPConfig.INSTANCE.globalChatPrefix)
             }
-            sendToConsole(player, message, "")
+            sendToConsole(player, message, RedstoneSMPConfig.INSTANCE.globalChatPrefix)
         }
     }
 }
