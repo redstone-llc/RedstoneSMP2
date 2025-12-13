@@ -2,8 +2,8 @@ import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
-    kotlin("jvm") version "2.1.0"
-    id("fabric-loom") version "1.11-SNAPSHOT"
+    kotlin("jvm") version "2.2.21"
+    id("fabric-loom") version "1.14-SNAPSHOT"
     id("maven-publish")
     java
 }
@@ -62,9 +62,9 @@ dependencies {
     modRuntimeOnly("maven.modrinth:simple-voice-chat:fabric-${project.property("voicechat_mod_version")}")
     modImplementation("maven.modrinth:styled-chat:${project.property("styled_chat_version")}")
 
-    modImplementation(include("eu.pb4:predicate-api:0.6.1+1.21.9")!!)
-    modImplementation(include("eu.pb4:placeholder-api:2.8.0+1.21.9")!!)
-    modImplementation(include("me.lucko:fabric-permissions-api:0.4.2-patbox.1")!!)
+    modImplementation(include("eu.pb4:predicate-api:0.7.0+1.21.11")!!)
+    modImplementation(include("eu.pb4:placeholder-api:2.8.1+1.21.10")!!)
+    modImplementation(include("me.lucko:fabric-permissions-api:0.6.1")!!)
 
 
     // Fabric API. This is technically optional, but you probably want it anyway.
@@ -80,9 +80,9 @@ tasks.processResources {
     filesMatching("fabric.mod.json") {
         expand(
             "version" to project.version,
-            "minecraft_version" to project.property("minecraft_version"),
-            "loader_version" to project.property("loader_version"),
-            "kotlin_loader_version" to project.property("kotlin_loader_version")
+            "minecraft_version" to project.property("minecraft_version")!!,
+            "loader_version" to project.property("loader_version")!!,
+            "kotlin_loader_version" to project.property("kotlin_loader_version")!!
         )
     }
 }

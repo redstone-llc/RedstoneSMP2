@@ -34,7 +34,7 @@ class OnMessageSent {
                 }
 
                 if (!playerChatMap.containsKey(sender.uuid) || playerChatMap[sender.uuid] == "global") {
-                    sender.entityWorld.server.playerManager.playerList.forEach { p ->
+                    sender.entityWorld.server?.playerManager?.playerList?.forEach { p ->
                         sendMessage(sender, p, message.signedContent, RedstoneSMPConfig.INSTANCE.globalChatPrefix)
                     }
                     sendToConsole(sender, message.signedContent, RedstoneSMPConfig.INSTANCE.globalChatPrefix)

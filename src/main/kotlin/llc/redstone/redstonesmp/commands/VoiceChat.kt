@@ -43,11 +43,11 @@ object VoiceChat {
             return
         }
 
-        val members = player.entityWorld.server.playerManager.playerList.filter {
+        val members = player.entityWorld.server?.playerManager?.playerList?.filter {
             RedstoneSMP.API.getConnectionOf(it.uuid)?.group == group
         }
 
-        members.forEach { member ->
+        members?.forEach { member ->
             sendMessage(player, member, message, RedstoneSMPConfig.INSTANCE.voiceChatPrefix)
         }
     }

@@ -28,9 +28,9 @@ fun sendMessage(sender: ServerPlayerEntity, player: ServerPlayerEntity, message:
 }
 
 fun sendToConsole(sender: ServerPlayerEntity, message: String, prefix: String) {
-    val console = sender.entityWorld.server.commandSource
+    val console = sender.entityWorld.server?.commandSource
     var text = StyledChatStyles.getChat(sender, literal(message));
     text = literal(prefix).append(text);
 
-    console.sendMessage(text)
+    console?.sendMessage(text)
 }
